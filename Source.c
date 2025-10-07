@@ -16,7 +16,7 @@ int loadStudents(char*, student*);
 float calcScore(int);	//racuna relativne bodove
 int printStudentInfo(student*);	//ispisuje podatke za odabranog studenta
 
-void main() {
+int main() {
 	int n=0;//broj studenata
 	int i=0;	//iterator
 
@@ -31,7 +31,7 @@ void main() {
 		return 1;
 	}
 
-	loadStudents("data.txt", n, students);
+	loadStudents("data.txt", students);
 	if (n) return n;
 
 	//ispis studenata
@@ -49,7 +49,7 @@ int countStudents(char* path) {
 	}
 
 	while (!feof(f)) {	//vrti se dok ne dode do kraja filea
-		fscanf(f,"%*c\n");	//uzima liniju bilo koji znakova koja zavrsava s \n
+		fscanf(f,"%s\n");	//uzima liniju bilo koji znakova koja zavrsava s \n
 		n++;
 	}
 
@@ -67,7 +67,7 @@ int loadStudents(char* path, student* students) {
 	}
 
 	while (!feof(f)) {
-		fscanf(f, "%*c %*c %d\n", students[i].f_name, students[i].l_name, students[i].score);	//ucitaje podatke u odabranu instancu strukture
+		fscanf(f, "%s %s %d\n", students[i].f_name, students[i].l_name, students[i].score);	//ucitaje podatke u odabranu instancu strukture
 		i++;	//iterator se inkrementira, ide se na iduceg studenta
 	}
 
@@ -76,10 +76,10 @@ int loadStudents(char* path, student* students) {
 }
 
 float calcScore(int score) {
-	return(float)score / MAX_SCORE * 100;
+	return (float)score / MAX_SCORE * 100;
 }
 
 int printStudentInfo(student* s) {
-	printf("%*c %*c %.2f\n", s->f_name, s->l_name, calcScore(s->score));	//ispisuje podatke pomocu printf
+	printf("%s %s %d/20 %.2f\n", s->f_name, s->l_name, s->score, calcScore(s->score));	//ispisuje podatke pomocu printf
 	return 0;
 }
