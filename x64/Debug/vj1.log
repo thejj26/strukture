@@ -1,6 +1,12 @@
 ﻿  Source.c
-C:\Users\student\Desktop\test\vj1\Source.c(52,12): warning C4473: 'fscanf' : not enough arguments passed for format string
-C:\Users\student\Desktop\test\vj1\Source.c(52,12): message : placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-C:\Users\student\Desktop\test\vj1\Source.c(52,12): message : the missing variadic argument 1 is required by format string '%s'
-C:\Users\student\Desktop\test\vj1\Source.c(70,13): warning C4477: 'fscanf' : format string '%d' requires an argument of type 'int *', but variadic argument 3 has type 'int'
+C:\Users\student\Desktop\test\vj1\Source.c(61,20): warning C4474: 'fscanf' : too many arguments passed for format string
+C:\Users\student\Desktop\test\vj1\Source.c(61,20): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
+C:\Users\student\Desktop\test\vj1\Source.c(62,9): warning C4473: 'printf' : not enough arguments passed for format string
+C:\Users\student\Desktop\test\vj1\Source.c(62,9): message : placeholders and their parameters expect 2 variadic arguments, but 1 were provided
+C:\Users\student\Desktop\test\vj1\Source.c(62,9): message : the missing variadic argument 2 is required by format string '%*c'
+C:\Users\student\Desktop\test\vj1\Source.c(62,9): message : this argument is used by a conversion specifier
+C:\Users\student\Desktop\test\vj1\Source.c(76,13): warning C4477: 'fscanf' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'char *'
+C:\Users\student\Desktop\test\vj1\Source.c(76,13): message : consider using '%hhd' in the format string
+C:\Users\student\Desktop\test\vj1\Source.c(76,59): warning C4474: 'fscanf' : too many arguments passed for format string
+C:\Users\student\Desktop\test\vj1\Source.c(76,59): message : placeholders and their parameters expect 1 variadic arguments, but 3 were provided
   vj1.vcxproj -> C:\Users\student\Desktop\test\vj1\x64\Debug\vj1.exe

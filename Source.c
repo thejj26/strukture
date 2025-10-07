@@ -25,7 +25,7 @@ int main() {
 
 	printf("Ima %d studenata\n\n", n);
 
-	student* students = (student*)malloc(n * sizeof(student));	//alocira se niz studenata pomocu pokazivaca
+	/*student* students = (student*)malloc(n * sizeof(student));	//alocira se niz studenata pomocu pokazivaca
 	if (students == NULL) {
 		printf("Memory allocation failed\n");
 		return 1;
@@ -37,7 +37,7 @@ int main() {
 	//ispis studenata
 	for (i = 0; i < n; i++) {	//prolazi kroz sve studente
 		printStudentInfo(students+i);	//ispisuje podatke
-	}
+	}*/
 }
 
 int countStudents(char* path) {
@@ -48,12 +48,18 @@ int countStudents(char* path) {
 		return -1;
 	}
 
-	while (!feof(f)) {	//vrti se dok ne dode do kraja filea
-		fscanf(f,"%s\n");	//uzima liniju bilo koji znakova koja zavrsava s \n
+	/*while (!feof(f)) {	//vrti se dok ne dode do kraja filea
+		char a[20];
+		char b[20];
+		char c[20];
+		fscanf(f,"%*c %*c %*c ",a,b,c);	//uzima liniju bilo koji znakova koja zavrsava s \n
+		printf("%*c %*c %*c\n", a, b, c);
 		n++;
 	}
-
-	fclose(f);
+	fclose(f);*/
+	char a[20];
+	fscanf(f, "%*c ", a);
+	printf("%*c\n", a);
 	return n;
 }
 
@@ -67,7 +73,7 @@ int loadStudents(char* path, student* students) {
 	}
 
 	while (!feof(f)) {
-		fscanf(f, "%s %s %d\n", students[i].f_name, students[i].l_name, students[i].score);	//ucitaje podatke u odabranu instancu strukture
+		fscanf(f, "%*c %*c %d ", students[i].f_name, students[i].l_name, students[i].score);	//ucitaje podatke u odabranu instancu strukture
 		i++;	//iterator se inkrementira, ide se na iduceg studenta
 	}
 
