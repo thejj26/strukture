@@ -21,45 +21,38 @@ int main() {
 	int i=0;	//iterator
 
 	n = countStudents("data.txt");
-	if (n) return n;
 
-	printf("Ima %d studenata\n\n", n);
+	printf("Postoje %d studenata\n\n", n);
 
-	/*student* students = (student*)malloc(n * sizeof(student));	//alocira se niz studenata pomocu pokazivaca
+	student* students = (student*)malloc(n * sizeof(student));	//alocira se niz studenata pomocu pokazivaca
 	if (students == NULL) {
 		printf("Memory allocation failed\n");
 		return 1;
 	}
 
 	loadStudents("data.txt", students);
-	if (n) return n;
 
 	//ispis studenata
 	for (i = 0; i < n; i++) {	//prolazi kroz sve studente
 		printStudentInfo(students+i);	//ispisuje podatke
-	}*/
+	}
+	putc('\n',stdout);
 }
 
 int countStudents(char* path) {
 	int n = 0;
-	FILE* f =fopen(path, "r");
+	FILE* f = fopen(path, "r");
 	if (f == NULL) {
 		printf("FILE NOT FOUND\n");
+		fclose(f);
 		return -1;
 	}
 
-	/*while (!feof(f)) {	//vrti se dok ne dode do kraja filea
-		char a[20];
-		char b[20];
-		char c[20];
-		fscanf(f,"%*c %*c %*c ",a,b,c);	//uzima liniju bilo koji znakova koja zavrsava s \n
-		printf("%*c %*c %*c\n", a, b, c);
-		n++;
+	while (!feof(f)) {	//vrti se dok ne dode do kraja filea
+		if(fgetc(f)=='\n') n++;
 	}
-	fclose(f);*/
-	char a[20];
-	fscanf(f, "%*c ", a);
-	printf("%*c\n", a);
+	
+	fclose(f);
 	return n;
 }
 
@@ -69,11 +62,12 @@ int loadStudents(char* path, student* students) {
 
 	if (f == NULL) {
 		printf("FILE NOT FOUND\n");
+		fclose(f);
 		return -1;
 	}
 
 	while (!feof(f)) {
-		fscanf(f, "%*c %*c %d ", students[i].f_name, students[i].l_name, students[i].score);	//ucitaje podatke u odabranu instancu strukture
+		fscanf(f, "%s %s %d ", students[i].f_name, students[i].l_name, &students[i].score);	//ucitaje podatke u odabranu instancu strukture
 		i++;	//iterator se inkrementira, ide se na iduceg studenta
 	}
 
@@ -86,6 +80,6 @@ float calcScore(int score) {
 }
 
 int printStudentInfo(student* s) {
-	printf("%s %s %d/20 %.2f\n", s->f_name, s->l_name, s->score, calcScore(s->score));	//ispisuje podatke pomocu printf
+	printf("%s %s %d/20 %.2f%%\n", s->f_name, s->l_name, s->score, calcScore(s->score));	//ispisuje podatke pomocu printf
 	return 0;
 }
