@@ -37,6 +37,9 @@ int main() {
 		printStudentInfo(students+i);	//ispisuje podatke
 	}
 	putc('\n',stdout);
+
+	free(students);
+	return 0;
 }
 
 int countStudents(char* path) {
