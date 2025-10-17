@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define  EMPTY_LIST -1
+#define MALLOC_ERROR -2
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,13 +23,18 @@ person* findByLastName(char*, person*);	//pronalazi osobu po prezimenu
 int delete(char*, person*);	//brise osobu po prezimenu
 
 int main() {
+	int err_handler=0;	//za lakse spremanje return vrijednosti
+
 	person* head = (person*)malloc(sizeof(person));	//head element liste
 	head->next = NULL;
 
 	//dodavanje novih osoba
-	addFirst("jakov", "jozic", 2006, head);	
-	addFirst("laura", "matas", 2002, head);
-	addLast("idk", "lol", 2010, head);
+	err_handler=addFirst("jakov", "jozic", 2006, head);	
+	if(err_handler) return err_handler;
+	err_handler=addFirst("laura", "matas", 2002, head);
+	if(err_handler) return err_handler;
+	err_handler=addLast("idk", "lol", 2010, head);
+	if(err_handler) return err_handler;
 
 	printf("\n");
 	printList(head->next);	//ispis svih osoba
@@ -48,7 +54,8 @@ int main() {
 	}
 
 	//brisane po prezimenu
-	delete(lastName, head);
+	err_handler=delete(lastName, head);
+	if(err_handler) return err_handler;
 	printf("Ta je osoba sada izbrisana.\n\n");
 	printList(head->next);
 
@@ -57,56 +64,58 @@ int main() {
 	return 0;
 }
 
-int addFirst(char* fname, char* lname, int year, person* anchor) {
+int addFirst(char* fname, char* lname, int year, person* p) {
 	person* new = (person*)malloc(sizeof(person));	//alociranje nove osobe
+	if(!new) return MALLOC_ERROR;
+
 	new->f_name = fname;
 	new->l_name = lname;
 	new->year = year;
-	new->next = anchor->next;
+	new->next = p->next;
 
-	anchor->next = new;	//postavljanje na pocetak
-
-	return 0;
-}
-
-int printList(person* anchor) {
-	while (anchor) {	//sve dok je valjani clan(adresa nije null)
-		printf("%s %s %d\n", anchor->f_name, anchor->l_name, anchor->year);
-		anchor = anchor->next;	//prelazak na iduci clan
-	}
+	p->next = new;	//postavljanje na pocetak
 
 	return 0;
 }
 
-int addLast(char* fname, char* lname, int year, person* anchor) {
-	while (anchor->next) {	//pronalazi zadnji clan
-		anchor = anchor->next;
+int printList(person* p) {
+	while (p) {	//sve dok je valjani clan(adresa nije null)
+		printf("%s %s %d\n", p->f_name, p->l_name, p->year);
+		p = p->next;	//prelazak na iduci clan
 	}
-
-	addFirst(fname, lname, year, anchor); //anchor je sada zadnji clan pa dodaje na kraj
 
 	return 0;
 }
 
-person* findByLastName(char* lname, person* anchor){
-	while(anchor){
-		if(!strcmp(anchor->l_name, lname)) break;	//usporeduje stringove, ako su jednaki prekida petlju
-		anchor=anchor->next;
+int addLast(char* fname, char* lname, int year, person* p) {
+	while (p->next) {	//pronalazi zadnji clan
+		p = p->next;
 	}
 
-	return anchor;
+	addFirst(fname, lname, year, p); //p je sada zadnji clan pa dodaje na kraj
+
+	return 0;
 }
 
-int delete(char* lname, person* anchor){
-	if(!anchor->next) return EMPTY_LIST;	//ukoliko nema elemenata
-
-	while(anchor->next){	//trazi prezime u iducem elementu
-		if(!strcmp(anchor->next->l_name, lname)) break;	//usporeduje stringove, ako su jednaki prekida petlju
-		anchor=anchor->next;
+person* findByLastName(char* lname, person* p){
+	while(p){
+		if(!strcmp(p->l_name, lname)) break;	//usporeduje stringove, ako su jednaki prekida petlju
+		p=p->next;
 	}
 
-	person* temp=anchor->next;
-	anchor->next=temp->next;
+	return p;
+}
+
+int delete(char* lname, person* p){
+	if(!p->next) return EMPTY_LIST;	//ukoliko nema elemenata
+
+	while(p->next){	//trazi prezime u iducem elementu
+		if(!strcmp(p->next->l_name, lname)) break;	//usporeduje stringove, ako su jednaki prekida petlju
+		p=p->next;
+	}
+
+	person* temp=p->next;
+	p->next=temp->next;
 	free(temp);
 
 	return 0;
