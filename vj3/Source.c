@@ -1,8 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
-#define EMPTY_LIST -1
-#define MALLOC_ERROR -2
-#define NOT_FOUND -3
-#define FILE_ERROR -4
+#define MALLOC_ERROR -1
+#define NOT_FOUND -2
+#define FILE_ERROR -3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,43 +16,40 @@ struct Person {	//struktura person
 };
 
 typedef struct Person person;
-person* addFirst(char*, char*, int, person*);	//dodaje novu osobu na start
+int addFirst(char*, char*, int, person*);	//dodaje novu osobu na start
 int printList(person*);	//ispisuje sve clanove
-person* addLast(char*, char*, int, person*);	//dodaje novu osobu na kraj
+int addLast(char*, char*, int, person*);	//dodaje novu osobu na kraj
 person* find(char*, person*);	//pronalazi osobu po prezimenu
 person* findPrev(char*, person*);	//pronalazi osobu prije trazene po prezimenu
 int delete(char*, person*);	//brise osobu po prezimenu
 
 //vj3
-person* addAfter(char*, char*, int, char*, person*);	//dodaje osobu nakon odabrane
-person* addBefore(char*, char*, int, char*, person*);	//dodaje osobu prije odabrane
+int addAfter(char*, char*, int, char*, person*);	//dodaje osobu nakon odabrane
+int addBefore(char*, char*, int, char*, person*);	//dodaje osobu prije odabrane
 int outputList(char*, person*);	//osobe dodaje u file
-person* inputList(char*, person*);	//osobe ucitaje iz filea
+int inputList(char*, person*);	//osobe ucitaje iz filea
 	
 int main() {
-	int err_handler = 0;	//za lakse spremanje return vrijednosti
-
 	person head = { "", "", 0 , NULL};	//head element liste
 
 	inputList("input.txt", &head);
-	printList(head.next);
+	outputList("output.txt", head.next);
 
-	free(&head);
 	return 0;
 }
 
-person* addFirst(char* fname, char* lname, int year, person* p) {
+int addFirst(char* fname, char* lname, int year, person* p) {
 	person* new = (person*)malloc(sizeof(person));	//alociranje nove osobe
 	if (!new) return MALLOC_ERROR;
 
-	new->f_name = fname;
-	new->l_name = lname;
+	new->f_name =strdup(fname);
+	new->l_name = strdup(lname);
 	new->year = year;
 	new->next = p->next;
 
 	p->next = new;	//postavljanje na pocetak
 
-	return new;
+	return 0;
 }
 
 int printList(person* p) {
@@ -65,15 +61,12 @@ int printList(person* p) {
 	return 0;
 }
 
-person* addLast(char* fname, char* lname, int year, person* p) {
+int addLast(char* fname, char* lname, int year, person* p) {
 	while (p->next) {	//pronalazi zadnji clan
 		p = p->next;
 	}
 
-	person* new=addFirst(fname, lname, year, p); //p je sada zadnji clan pa dodaje na kraj
-	if (new == NULL) return MALLOC_ERROR;
-
-	return new;
+	return addFirst(fname, lname, year, p); //p je sada zadnji clan pa dodaje na kraj
 }
 
 person* find(char* lname, person* p) {
@@ -97,7 +90,7 @@ person* findPrev(char* lname, person* p) {
 
 int delete(char* lname, person* p) {
 	p = findPrev(lname, p);
-	if (p==NULL || p->next==NULL) return EMPTY_LIST; //ukoliko nema elemenata
+	if (p==NULL || p->next==NULL) return NOT_FOUND; //ukoliko nema elemenata
 
 	person* temp = p->next;
 	p->next = temp->next;
@@ -106,32 +99,26 @@ int delete(char* lname, person* p) {
 	return 0;
 }
 
-person* addAfter(char* fname, char* lname, int year, char* _lname, person* p) {
+int addAfter(char* fname, char* lname, int year, char* _lname, person* p) {
 	p = find(_lname, p);
 	if (p == NULL) return NOT_FOUND;
 
-	person* new = addFirst(fname, lname, year, p);
-	if (new == NULL) return MALLOC_ERROR;
-
-	return new;
+	return addFirst(fname, lname, year, p);
 }
 
-person* addBefore(char* fname, char* lname, int year, char* _lname, person* p) {
+int addBefore(char* fname, char* lname, int year, char* _lname, person* p) {
 	p = findPrev(_lname, p);
 	if (p == NULL) return NOT_FOUND;
 
-	person* new = addFirst(fname, lname, year, p);
-	if (new == NULL) return MALLOC_ERROR;
-
-	return new;
+	return addFirst(fname, lname, year, p);
 }
 
 int outputList(char* path, person* p) {
-	FILE* f = fopen(path, "w");
-	if (f == NULL) return FILE_ERROR;
+	FILE* f = fopen(path, "w");	//otvara file
+	if (f == NULL) return FILE_ERROR;	//provjera je li file otvoren
 
-	while (p) {
-		fprintf(f, "%s %s %d\n", p->f_name, p->l_name, p->year);
+	while (p) {	//za svaki element liste
+		fprintf(f, "%s %s %d\n", p->f_name, p->l_name, p->year);	//ispisuje u file
 		p = p->next;
 	}
 
@@ -139,17 +126,22 @@ int outputList(char* path, person* p) {
 	return 0;
 }
 
-person* inputList(char* path, person* p) {
+int inputList(char* path, person* p) {
+	int err=0;	//error handling
+
 	FILE* f = fopen(path, "r");
 	if (f == NULL) return FILE_ERROR;
 
-	char* fname;
-	char* lname;
+	char fname[20];	//spremaju podatke
+	char lname[20];
 	int year;
+	
 
-	while (!feof(f)) {
-		fscanf(f, "%s %s %d\n", fname, lname, &year);
-		addLast(fname, lname, year, p);
+	while (!feof(f)) {	//dok ne dode do kraja
+		fscanf(f, "%s %s %d\n", fname, lname, &year);	//cita iz filea
+		err=addLast(fname, lname, year, p);	//upisuje na kraj liste
+
+		if(err==MALLOC_ERROR) return MALLOC_ERROR;	//ispisuje error ako postoji
 	}
 
 	fclose(f);
