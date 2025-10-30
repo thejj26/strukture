@@ -2,73 +2,49 @@
 
 #define FILE_ERROR -1
 #define MALLOC_ERROR -2
-#define END '\0'
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct o {
-	char op;
-	struct o* next;
-};
 
-struct n {
+typedef struct n
+{
 	int num;
-	struct n* next;
-};
+	struct n *next;
+} number;
 
-typedef struct o operand; 
-typedef struct n number;
+// pusha u stack
+int push(int, number *);
 
-//pushaju u stack
-int pushOperand(char, operand*);
-int pushNumber(int, number*);
+// poppa iz stacka
+int pop(number *);
 
-//poppaju iz stacka
-char popOperand(operand*);
-int popNumber(number*);
-
-//odraduje trazenu operaciju
+// odraduje trazenu operaciju
 int calc(int, int, char);
 
-//kalkulira postfix
-int calcPostfix(operand*, number*);
+// kalkulira postfix dok ga cita iz dadtoteke
+int loadAndCalc(char *, number *);
 
-int main() {
-	int result = 0;	//rezultat izraza
+int main()
+{
+	int result = 0; // rezultat izraza
 
-	operand o_head = { 0, NULL };	//stack operatora
-	number n_head = { 0, NULL };	//stack brojeva
-	loadPostfix("input.txt", &o_head, &n_head);
+	number head = {0, NULL}; // stack brojeva
 
-	result = calcPostfix(&o_head, &n_head);
+	result = loadAndCalc("input.txt", &head);
 
 	printf("Rezultat je %d\n", result);
 
 	return 0;
 }
 
-int pushOperand(char op, operand* p) {
-	operand* new = (operand*)malloc(sizeof(operand));
-	if(new==NULL){
-		free(new);
+
+int push(int num, number *p)
+{
+	number *new = (number *)malloc(sizeof(number));
+	if (new == NULL)
 		return MALLOC_ERROR;
-	}
-
-	new->op = op;
-	new->next = p->next;
-	p->next = new;
-
-	return EXIT_SUCCESS;
-}
-
-int pushNumber(int num, number* p) {
-	number* new = (number*)malloc(sizeof(number));
-	if (new == NULL) {
-		free(new);
-		return MALLOC_ERROR;
-	}
 
 	new->num = num;
 	new->next = p->next;
@@ -77,20 +53,11 @@ int pushNumber(int num, number* p) {
 	return EXIT_SUCCESS;
 }
 
-char popOperand(operand* p) {
-	operand* temp = p->next;
-	if (temp == NULL) return END;
-
-	char c=temp->op;
-
-	p->next = temp->next;
-	free(temp);
-	return c;
-}
-
-int popNumber(number* p) {
-	number* temp = p->next;
-	if (temp == NULL) return END;
+int pop(number *p)
+{
+	number *temp = p->next;
+	if (temp == NULL)
+		return EXIT_FAILURE;
 
 	int n = temp->num;
 
@@ -99,64 +66,56 @@ int popNumber(number* p) {
 	return n;
 }
 
-int loadPostfix(char* path, operand* o_p, number* n_p) {
-	char buffer[10];
-	char* end;
-
-	FILE* f = fopen(path, "r");
-	if (f == NULL) {
-		fclose(f);
-		return FILE_ERROR;
-	}
-
-	while (!feof(f)) {
-		fscanf(f, "%s ", buffer);
-		switch (buffer[0]) {
-		case '+':
-		case '-':
-		case '*':
-		case '/':
-			pushOperand(buffer[0],o_p);
-			break;
-		default:
-			pushNumber(strtol(buffer, &end, 10), n_p);
-		}
-	}
-
-	free(f);
-	return 0;
-}
-
-int calc(int a, int b, char o) {
+int calc(int a, int b, char o)
+{
 	int res = 0;
-	switch (o) {
+	switch (o)
+	{
 	case '+':
-		res =a + b;
+		res = a + b;
 		break;
 	case '-':
-		res= a - b;
+		res = a - b;
 		break;
 	case '*':
-		res= a * b;
+		res = a * b;
 		break;
 	case '/':
 		res = a / b;
 		break;
 	}
-	
+
 	return res;
 }
 
-int calcPostfix(operand* o, number* n) {
-	char op = '0';
+int loadAndCalc(char *path, number *p)
+{
+	char buffer[10], *end;	//buffer sprema trenutno procitani string, end je potreban za strtol
 	int a = 0, b = 0;
-	while (1) {
-		op = popOperand(o);
-		if (op == END) break;
-		a = popNumber(n);
-		b = popNumber(n);
-		pushNumber(calc(a, b, op), n);
+
+	FILE *f = fopen(path, "r");
+	if (f == NULL)
+		return FILE_ERROR;
+
+	while (!feof(f))
+	{
+		fscanf(f, "%s ", buffer);
+
+		switch (buffer[0])
+		{
+		case '+':
+		case '-':
+		case '*':
+		case '/':	//ukoliko je procitana operacija
+			b = pop(p);	//dohvaca brojeve
+			a = pop(p);	//obrnut redoslijed jer se tako spremaju u stack (noviji izlazi prvi)
+			push(calc(a, b, buffer[0]), p);	//rezultat operacije sprema natrag u stack
+			break;
+		default:
+			push(strtol(buffer, &end, 10), p);	//pusha novi broj u stack
+		}
 	}
 
-	return popNumber(n);
+	fclose(f);
+	return pop(p);	//vraca rezultat
 }
